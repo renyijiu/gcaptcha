@@ -7,7 +7,7 @@ module GCaptcha
     # Color style, default: :colorful, allows: [:colorful, :black_white]
     attr_accessor :style
 
-    # Chars length: default 5, allows: [3..10]
+    # Chars length: default 5, allows: [3..7]
     attr_accessor :length
 
     # strike_through, default: true

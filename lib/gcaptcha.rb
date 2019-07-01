@@ -34,11 +34,11 @@ module GCaptcha
     private
 
     def get_captcha_data
-      style = config[:style] == :colorful ? 1 : 0
+      style = config[:style].to_sym == :colorful ? 1 : 0
       length = config[:length]
 
-      unless (3..10).include?(length)
-        raise GCaptcha::Errors::Configuration, 'length config error, value must in 3..10'
+      unless (3..7).include?(length)
+        raise GCaptcha::Errors::Configuration, 'length config error, value must in 3..7'
       end
 
       strike_through = config[:strike_through] ? 1 : 0

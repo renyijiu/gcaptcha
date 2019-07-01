@@ -1,0 +1,116 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require 'optparse'
+require 'gcaptcha'
+
+class GCaptchaOptparser
+  class Parser
+    attr_accessor :style,
+                  :length,
+                  :strike_through,
+                  :outline,
+                  :batch_nums,
+                  :img_path,
+                  :extension_name
+
+    def initialize
+
+    end
+
+    def define_options(parser)
+      parser.banner = "Usage: GCaptcha [options]"
+      parser.separator ""
+      parser.separator "Specific options:"
+
+      style_option(parser)
+      length_option(parser)
+      strike_through_option(parser)
+      outline_option(parser)
+      batch_nums_option(parser)
+      img_path_option(parser)
+      extension_name_option(parser)
+
+      parser.separator ""
+      parser.separator "Common options:"
+
+      parser.on_tail("-h", "--help", "show the help message") do
+        puts parser
+        exit
+      end
+
+      parser.on_tail("-v", "--version", "Show version") do
+        puts GCaptcha::VERSION
+        exit
+      end
+    end
+
+    private
+
+    def style_option(parser)
+      parser.on("-s", "--style [TYPE]", [:colorful, :blank_white],"Color style, default: colorful, allows: [colorful, black_white]") do |style|
+        self.style = style
+      end
+    end
+
+    def length_option(parser)
+      parser.on("-l", "--length [INTEGER]", Integer, "Chars length: default 5, allows: [3..7]") do |length|
+        self.length = length
+      end
+    end
+
+    def strike_through_option(parser)
+      parser.on("-t", "--[no-]through", "strike_through, default: true") do |strike_through|
+        self.strike_through = strike_through
+      end
+    end
+
+    def outline_option(parser)
+      parser.on("-u", "--[no-]outline", "Outline style for the hard mode, default: true") do |outline|
+        self.outline = outline
+      end
+    end
+
+    def batch_nums_option(parser)
+      parser.on("-n", "--nums [INTEGER]", Integer, "The nums to batch generate captcha, default: 10") do |num|
+        self.batch_nums = num
+      end
+    end
+
+    def img_path_option(parser)
+      parser.on("-o", "--output [STRING]", String, "img output path, default: Dir.pwd") do |path|
+        self.img_path = path
+      end
+    end
+
+    def extension_name_option(parser)
+      parser.on("-e", "--ext_name [TYPE]", [:jpg, :png, :gif], "image's extension name, allows: [jpg, png, gif], default: jpg") do |ext_name|
+        self.extension_name = ext_name
+      end
+    end
+  end
+
+  attr_reader :parser, :options
+  def parse(args)
+    @options = Parser.new
+    @args = OptionParser.new do |parser|
+      @options.define_options(parser)
+      parser.parse!(args)
+    end
+    @options
+  end
+end
+
+parser = GCaptchaOptparser.new
+options = parser.parse(ARGV)
+
+GCaptcha.configure do |config|
+  config.style = options.style if options.style
+  config.length = options.length if options.length
+  config.strike_through = options.strike_through unless options.strike_through.nil?
+  config.outline = options.outline unless options.outline.nil?
+  config.batch_nums = options.batch_nums if options.batch_nums
+  config.img_path = options.img_path if options.img_path
+  config.extension_name = options.extension_name if options.extension_name
+end
+GCaptcha.batch_generate
